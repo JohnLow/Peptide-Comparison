@@ -3,5 +3,15 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="C:/Program Files/Java/poi-3.9/poi-3.9-20121203.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/poi-3.9/poi-ooxml-3.9-20121203.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/poi-3.9/poi-ooxml-schemas-3.9-20121203.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/poi-3.9/ooxml-lib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/poi-3.9/ooxml-lib/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/poi-3.9/ooxml-lib/xmlbeans-2.3.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/John/Desktop/commons-collections4-4.0-alpha1-bin/commons-collections4-4.0-alpha1/commons-collections4-4.0-alpha1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/John/Desktop/commons-collections4-4.0-alpha1-bin/commons-collections4-4.0-alpha1/commons-collections4-4.0-alpha1-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/John/Desktop/commons-collections4-4.0-alpha1-bin/commons-collections4-4.0-alpha1/commons-collections4-4.0-alpha1-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/John/Desktop/commons-collections4-4.0-alpha1-bin/commons-collections4-4.0-alpha1/commons-collections4-4.0-alpha1-tests.jar"/>
+	<classpathentry kind="lib" path="C:/Users/John/Desktop/commons-collections4-4.0-alpha1-bin/commons-collections4-4.0-alpha1/commons-collections4-4.0-alpha1-test-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

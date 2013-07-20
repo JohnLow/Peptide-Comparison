@@ -2,10 +2,12 @@ import java.awt.Component;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -19,26 +21,27 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 
-public class Dna implements Comparable<Dna>{
+public class Dna {
 	
-private String linSeq;
-private String allele;
-private String qualt;
-private static List<Dna> list1;
-private static List<Dna> list2;
-private Dna posArray;
-private Dna negArray;
+private String linearSequence, alleleName, qualtMeasure;
+private static Map<Dna, String> map1;
+private static Map<Dna, String> map2;
+private static Dna pos;
+private static Dna neg;
+
 
 	public Dna(String linearSequence, String alleleName, String qualtMeasure){
-		linSeq = linearSequence;
-		allele = alleleName;
-		qualt = qualtMeasure;
+		this.linearSequence = linearSequence;
+		this.alleleName = alleleName;
+		this.qualtMeasure = qualtMeasure;
 	}
 	
+	// getter method
 	public String getSequence() {
-		return linSeq;
+		return linearSequence;
 	}
 	
+	// parses the excel sheet into strings
 	private static String parseCellValue(Workbook workBook, Cell cell) {      
 	    FormulaEvaluator evaluator = workBook.getCreationHelper().createFormulaEvaluator();
 	    String cellValue = null;              
@@ -65,6 +68,7 @@ private Dna negArray;
 	    return cellValue;
 	}
 	
+	//+++++++++++++++++++++++++ GUI methods ++++++++++++++++++++++++++++++++++++++++
 	public static void chooseYourDestiny() {
 		Component frame = null;
 		Object[] options = {"Comparison",
@@ -79,39 +83,30 @@ private Dna negArray;
 		options[0]); //default button title
 	}
 	
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	//prompts the user to enter the file containing positive peptides
-	public static void positiveMessage() {
-		Component frame = null;
-		JOptionPane.showMessageDialog(frame,
-			    "Please enter the file containing 'negative' peptides.",
-			    "Hark!",
-			    JOptionPane.PLAIN_MESSAGE);
-	}
 	
-	//prompts the user to enter the file containing negative peptides
-	public static void negativeMessage() {
+	//prompts the user to enter the files containing peptides
+	public static void prompt() {
 		Component frame = null;
 		JOptionPane.showMessageDialog(frame,
-			    "Please enter the file containing 'positive' peptides.",
+			    "Please enter the file containing 'positive' peptides, \n" + 
+			    "followed by the file containing the 'negative' peptides.",
 			    "Hark!",
 			    JOptionPane.PLAIN_MESSAGE);
 	}
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	
-	//if linear Sequence is in both files, and the AlleleName is the same, just count
-	//how many times it occurs.
-	public static void chooseFiles() {
+  /*bk, bw, ca are the columns in the excel file to be read
+    if linear Sequence is in both files, and the AlleleName is the same, just count
+	how many times it occurs. */
+	public static void getFiles() {
 		JFileChooser fileChooser = new JFileChooser();
 		int returnValue = fileChooser.showOpenDialog(null);
 		
 		if(returnValue == JFileChooser.APPROVE_OPTION){
 			try {
 				Workbook workbook = new HSSFWorkbook(new FileInputStream(fileChooser.getSelectedFile()));
-				
 				Sheet sheet = workbook.getSheetAt(0);
-				List<Dna> list1 = new ArrayList<Dna>();
+				map1 = new HashMap<Dna, String>();
 				
 				//iterating through every row, only the cells in columns A, H, and J are read
 				for(Row row: sheet){
@@ -125,35 +120,29 @@ private Dna negArray;
 					String parseQuality = parseCellValue(workbook, qualtMeasure);
 					
 					//creating a new Dna object which takes in the parsed cell value
-					//and is then added to the List
-					Dna posArray = new Dna(parseSequence, parseAllele, parseQuality);
-					list1.add(posArray);
-					
+					//and is then added to the map
+					pos = new Dna(parseSequence, parseAllele, parseQuality);
+					map1.put(pos, parseSequence);
 					
 				}
-				Collections.sort(list1);
-				System.out.println(list1);
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (NullPointerException e){
+				e.printStackTrace();
 			}
-		}
 		
 		JFileChooser fileChooser2 = new JFileChooser();
 		int returnValue2 = fileChooser2.showOpenDialog(null);
-		//bk, bw, ca
-		//if linear Sequence is in both files, and the AlleleName is the same, just count
-		//how many times it occurs.
+		
 		if(returnValue2 == JFileChooser.APPROVE_OPTION){
 			try {
 				Workbook workbook = new HSSFWorkbook(new FileInputStream(fileChooser2.getSelectedFile()));
-				
 				Sheet sheet = workbook.getSheetAt(0);
-				List<Dna> list2 = new ArrayList<Dna>();
-				
+				map2 = new LinkedHashMap<Dna, String>();
 				//iterating through every row, only the cells in columns A, H, and J are read
 				for(Row row: sheet){
 					Cell linearSequence = row.getCell(63);
@@ -165,12 +154,12 @@ private Dna negArray;
 					Cell qualtMeasure = row.getCell(78);
 					String parseQuality = parseCellValue(workbook, qualtMeasure);
 					
-					//creating a new ArrayList which takes in the parsed cell value
-					Dna negArray = new Dna(parseSequence, parseAllele, parseQuality);
-					list2.add(negArray);
+					
+					neg = new Dna(parseSequence, parseAllele, parseQuality);
+					
+					map2.put(neg, parseSequence);
 					
 				}
-				System.out.println(list2);
 
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -181,86 +170,72 @@ private Dna negArray;
 			}
 		}
 		
-		try {
+			try {
+				
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
 			
-		} catch(Exception e) {
-			e.printStackTrace();
+			/* here we compare the size of the maps in order to make sure that commonKeys
+			 * is larger than other map, thereby truly checking every element */
+			if(map1.size() > map2.size()){
+				Set<Dna>commonKeys = new HashSet<Dna>(map1.keySet());
+				commonKeys.retainAll(map2.keySet());
+				System.out.println(commonKeys.size() + " common peptides were found.");
+			}
+			else {
+				Set<Dna>commonKeys = new HashSet<Dna>(map2.keySet());
+				commonKeys.retainAll(map1.keySet());
+				System.out.println(commonKeys.size()  + " common peptides were found.");
+			}
+			
 		}
 		
-		int count = 0;
-		try {
-			for(Dna pos: list1){
-				for(Dna neg: list2) {
-					if(pos.compareTo(neg) == 0) {
-						count ++;
-					}
-				}
-			}
-		}
-		catch(NullPointerException e) {
-		}
-		System.out.println(count);
-	}
+	}	
 	
 	//PrinterWriter out = new PrintWriter("filename.txt");
 	//out.println(text);
 	//out.close();
-	/*public static void negativeFile() {
-		JFileChooser fileChooser2 = new JFileChooser();
-		int returnValue2 = fileChooser2.showOpenDialog(null);
-		//bk, bw, ca
-		//if linear Sequence is in both files, and the AlleleName is the same, just count
-		//how many times it occurs.
-		if(returnValue2 == JFileChooser.APPROVE_OPTION){
-			try {
-				Workbook workbook = new HSSFWorkbook(new FileInputStream(fileChooser2.getSelectedFile()));
-				
-				Sheet sheet = workbook.getSheetAt(0);
-				List<Dna> Dna = new ArrayList<Dna>();
-				
-				//iterating through every row, only the cells in columns A, H, and J are read
-				for(Row row: sheet){
-					Cell linearSequence = row.getCell(63);
-					String parseSequence =  parseCellValue(workbook, linearSequence);
-					
-					Cell alleleName = row.getCell(74);
-					String parseAllele = parseCellValue(workbook, alleleName);
-					
-					Cell qualtMeasure = row.getCell(78);
-					String parseQuality = parseCellValue(workbook, qualtMeasure);
-					
-					//creating a new ArrayList which takes in the parsed cell value
-					Dna negArray = new Dna(parseSequence, parseAllele, parseQuality);
-					Dna.add(negArray);
-					
-					Collections.sort(Dna);
-				}
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		try {
-			
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-	} */
+	
+/*= = = = = = = = = = = important overridden methods and toString = = = = = = = = = = = = = = = = = = = = = = */
 	
 	public String toString(){
-		String thing = new String(linSeq + " " + allele + ", " + qualt + "\n");
-		return thing;
+		
+		return linearSequence + "\t" + alleleName + "\t\t" + qualtMeasure;
 	}
-	
+
 	@Override
-	public int compareTo(Dna posOrNeg) {
-	
-		return posOrNeg.getSequence().compareTo(this.linSeq);
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((alleleName == null) ? 0 : alleleName.hashCode());
+		result = prime * result
+				+ ((linearSequence == null) ? 0 : linearSequence.hashCode());
+		return result;
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Dna other = (Dna) obj;
+		if (alleleName == null) {
+			if (other.alleleName != null)
+				return false;
+		} else if (!alleleName.equals(other.alleleName))
+			return false;
+		if (linearSequence == null) {
+			if (other.linearSequence != null)
+				return false;
+		} else if (!linearSequence.equals(other.linearSequence))
+			return false;
+		return true;
+	}
+/*= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 }
 	
